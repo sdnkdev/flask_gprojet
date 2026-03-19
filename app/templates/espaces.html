@@ -1,0 +1,198 @@
+{% extends "base.html" %} {% block title %}Espaces - GPROJET{% endblock %} {%
+block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold">Mes Espaces</h2>
+  <button
+    class="btn btn-success"
+    data-bs-toggle="modal"
+    data-bs-target="#createEspaceModal"
+  >
+    <i class="fas fa-plus me-2"></i>Nouveau
+  </button>
+</div>
+
+<div class="modal fade" id="createEspaceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Nouveau Espace</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form action="{{ url_for('main.creer_espace_ui_route') }}" method="POST">
+        <div class="modal-body py-4">
+          <div class="mb-3">
+            <label for="nom" class="form-label small fw-bold"
+              >Nom de l'Espace</label
+            >
+            <input
+              type="text"
+              class="form-control bg-light border-0 py-2"
+              id="nom"
+              name="nom"
+              placeholder=""
+              required
+            />
+          </div>
+          <div class="mb-0">
+            <label for="description" class="form-label small fw-bold"
+              >Description (Optionnel)</label
+            >
+            <textarea
+              class="form-control bg-light border-0 py-2"
+              id="description"
+              name="description"
+              rows="3"
+              placeholder=""
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-success px-4">
+            Créer l'espace
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for espace, role in espaces_with_roles %}
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm transition-hover">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <i class="fas fa-folder text-success fa-2x"></i>
+          {% if role == 'admin' %}
+          <div class="dropdown" style="position: relative; z-index: 2">
+            <button
+              class="btn btn-link text-secondary p-0"
+              data-bs-toggle="dropdown"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
+              <li>
+                <button
+                  class="dropdown-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editEspaceModal{{ espace.id }}"
+                >
+                  <i class="fas fa-edit me-2"></i>Modifier
+                </button>
+              </li>
+              <li>
+                <form
+                  action="{{ url_for('main.supprimer_espace_ui_route', id=espace.id) }}"
+                  method="POST"
+                  onsubmit="return confirm('Supprimer cet espace ?');"
+                >
+                  <button type="submit" class="dropdown-item text-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Supprimer
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+        <h5 class="card-title fw-bold text-dark">{{ espace.nom }}</h5>
+        <p class="card-text text-secondary small">
+          {{ espace.description or "Aucune description" }}
+        </p>
+        <a
+          href="{{ url_for('main.espace_projets_route', id=espace.id) }}"
+          class="btn btn-outline-success btn-sm stretched-link"
+        >
+          Voir les projets
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% if role == 'admin' %}
+  <!-- Modal Modifier Espace -->
+  <div
+    class="modal fade"
+    id="editEspaceModal{{ espace.id }}"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold">Modifier l'Espace</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <form
+          action="{{ url_for('main.modifier_espace_ui_route', id=espace.id) }}"
+          method="POST"
+        >
+          <div class="modal-body py-4">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Nom</label>
+              <input
+                type="text"
+                class="form-control bg-light border-0 py-2"
+                name="nom"
+                value="{{ espace.nom }}"
+                required
+              />
+            </div>
+            <div class="mb-0">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea
+                class="form-control bg-light border-0 py-2"
+                name="description"
+                rows="3"
+              >
+{{ espace.description }}</textarea
+              >
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-success px-4">
+              Sauvegarder
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %} {% else %}
+  <div class="col-12 text-center py-5">
+    <p class="text-secondary">
+      Vous n'appartenez à aucun espace pour le moment.
+    </p>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .transition-hover {
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .transition-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  }
+</style>
+{% endblock %}

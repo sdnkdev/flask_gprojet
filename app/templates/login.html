@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block title %}Connexion{% endblock %} {% block
+content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card p-5 border-0 shadow-sm">
+      <div class="text-center mb-5">
+        <div
+          class="d-inline-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-3 mb-4"
+          style="width: 64px; height: 64px"
+        >
+          <i class="fas fa-lock fa-xl text-secondary"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Authentification</h3>
+      </div>
+
+      <form action="{{ url_for('auth.login') }}" method="POST">
+        <div class="mb-3">
+          <label for="email" class="form-label small fw-bold">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder="user@test.com"
+            required
+          />
+        </div>
+        <div class="mb-4">
+          <label for="password" class="form-label small fw-bold"
+            >Mot de passe</label
+          >
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-success w-100 py-2 mb-4">
+          Se connecter <i class="fas fa-sign-in-alt ms-2"></i>
+        </button>
+      </form>
+
+      <div class="text-center">
+        <p class="text-muted small mb-0">
+          Pas encore de compte ?
+          <a
+            href="/register"
+            class="text-primary text-decoration-none fw-semibold"
+            >Créer un compte</a
+          >
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

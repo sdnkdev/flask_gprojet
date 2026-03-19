@@ -1,0 +1,272 @@
+{% extends "base.html" %} {% block title %}Projets - {{ espace.nom }}{% endblock
+%} {% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('main.espaces_route') }}">Espaces</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">{{ espace.nom }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold">
+    Projets dans <span class="text-success">{{ espace.nom }}</span>
+  </h2>
+  <button
+    class="btn btn-success"
+    data-bs-toggle="modal"
+    data-bs-target="#createProjetModal"
+  >
+    <i class="fas fa-plus me-2"></i>Nouveau
+  </button>
+</div>
+
+<!-- Modal Création Projet -->
+<div class="modal fade" id="createProjetModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Nouveau Projet</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form
+        action="{{ url_for('main.creer_projet_ui_route', espace_id=espace.id) }}"
+        method="POST"
+      >
+        <div class="modal-body py-4">
+          <div class="mb-3">
+            <label for="titre" class="form-label small fw-bold"
+              >Titre du Projet</label
+            >
+            <input
+              type="text"
+              class="form-control bg-light border-0 py-2"
+              id="titre"
+              name="titre"
+              placeholder=""
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label small fw-bold"
+              >Description</label
+            >
+            <textarea
+              class="form-control bg-light border-0 py-2"
+              id="description"
+              name="description"
+              rows="3"
+              placeholder="Description du projet..."
+            ></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="date_debut" class="form-label small fw-bold"
+                >Date Début</label
+              >
+              <input
+                type="date"
+                class="form-control bg-light border-0 py-2"
+                id="date_debut"
+                name="date_debut"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="date_fin" class="form-label small fw-bold"
+                >Date Fin</label
+              >
+              <input
+                type="date"
+                class="form-control bg-light border-0 py-2"
+                id="date_fin"
+                name="date_fin"
+                required
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-success px-4">
+            Créer le projet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  {% for projet in projets %}
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100 transition-hover">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <h5 class="card-title fw-bold mb-0 text-dark">{{ projet.titre }}</h5>
+          <div class="d-flex align-items-center">
+            <span class="badge bg-soft-success text-success me-2"
+              >{{ projet.status }}</span
+            >
+            {% if role == 'admin' %}
+            <div class="dropdown" style="position: relative; z-index: 2">
+              <button
+                class="btn btn-link text-secondary p-0"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
+                <li>
+                  <button
+                    class="dropdown-item"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editProjetModal{{ projet.id }}"
+                  >
+                    <i class="fas fa-edit me-2"></i>Modifier
+                  </button>
+                </li>
+                <li>
+                  <form
+                    action="{{ url_for('main.supprimer_projet_ui_route', id=projet.id) }}"
+                    method="POST"
+                    onsubmit="return confirm('Supprimer ce projet ?');"
+                  >
+                    <button type="submit" class="dropdown-item text-danger">
+                      <i class="fas fa-trash-alt me-2"></i>Supprimer
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <p class="text-secondary small">
+          {{ projet.description[:100] }}{% if projet.description|length > 100
+          %}...{% endif %}
+        </p>
+        <div class="d-flex align-items-center text-muted small mb-3">
+          <i class="far fa-calendar-alt me-2"></i>
+          {{ projet.date_debut.strftime('%d/%m/%Y') }} - {{
+          projet.date_fin.strftime('%d/%m/%Y') }}
+        </div>
+        <a
+          href="{{ url_for('main.projet_details_route', id=projet.id) }}"
+          class="btn btn-outline-success btn-sm stretched-link"
+        >
+          Détails <i class="fas fa-chevron-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {% if role == 'admin' %}
+  <!-- Modal Modifier Projet -->
+  <div
+    class="modal fade"
+    id="editProjetModal{{ projet.id }}"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold">Modifier le Projet</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <form
+          action="{{ url_for('main.modifier_projet_ui_route', id=projet.id) }}"
+          method="POST"
+        >
+          <div class="modal-body py-4">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Titre</label>
+              <input
+                type="text"
+                class="form-control bg-light border-0 py-2"
+                name="titre"
+                value="{{ projet.titre }}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Description</label>
+              <textarea
+                class="form-control bg-light border-0 py-2"
+                name="description"
+                rows="3"
+              >
+{{ projet.description }}</textarea
+              >
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold">Date Début</label>
+                <input
+                  type="date"
+                  class="form-control bg-light border-0 py-2"
+                  name="date_debut"
+                  value="{{ projet.date_debut.strftime('%Y-%m-%d') }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold">Date Fin</label>
+                <input
+                  type="date"
+                  class="form-control bg-light border-0 py-2"
+                  name="date_fin"
+                  value="{{ projet.date_fin.strftime('%Y-%m-%d') }}"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-success px-4">
+              Sauvegarder
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %} {% else %}
+  <div class="col-12 text-center py-5">
+    <p class="text-secondary">Aucun projet trouvé dans cet espace.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .transition-hover {
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .transition-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  }
+  .bg-soft-success {
+    background-color: #f0fdf4;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Fichier - {{ file.nom_file }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.espaces_route') }}">Espaces</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('main.tache_details_route', id=tache.id) }}">Retour à la tâche</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ file.nom_file }}</li>
+    </ol>
+</nav>
+
+<div class="card border-0 shadow-sm p-5 text-center">
+    <i class="fas fa-file-alt fa-4x text-primary mb-4"></i>
+    <h2 class="fw-bold">{{ file.nom_file }}</h2>
+    <p class="text-secondary mb-4">Type : <strong>{{ file.type_file }}</strong></p>
+    
+    <div class="d-flex justify-content-center gap-3">
+        <button class="btn btn-primary px-4"><i class="fas fa-download me-2"></i>Télécharger</button>
+        <button class="btn btn-outline-secondary px-4"><i class="fas fa-eye me-2"></i>Prévisualiser</button>
+    </div>
+    
+    <div class="mt-5 pt-4 border-top text-muted small">
+        Uploadé le {{ file.date_creation.strftime('%d/%m/%Y à %H:%M') }} par {{ file.uploader.prenom }}
+    </div>
+</div>
+{% endblock %}
