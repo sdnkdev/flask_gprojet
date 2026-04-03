@@ -1,5 +1,6 @@
-from flask import request, jsonify, render_template, redirect, url_for, flash
+from flask import request, jsonify, render_template, redirect, url_for, flash, current_app
 from app.services.auth_service import register_user, login_user
+import jwt
 
 
 def register():
@@ -38,12 +39,22 @@ def logout():
     return response
 
 def show_login():
-    if "access_token" in request.cookies:
-        return redirect(url_for("main.home_route"))
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            return redirect(url_for("main.home_route"))
+        except:
+            pass
     return render_template("login.html")
 
 def show_register():
-    if "access_token" in request.cookies:
-        return redirect(url_for("main.home_route"))
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            return redirect(url_for("main.home_route"))
+        except:
+            pass
     return render_template("register.html")
 

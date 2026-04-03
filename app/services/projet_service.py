@@ -86,7 +86,6 @@ def supprimer_projet(projet_id, current_user):
 
 def lister_projets_espace(espace_id, current_user):
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    test = Sq
     if not membre:
         return jsonify({"message": "Accès refusé"}), 403
         

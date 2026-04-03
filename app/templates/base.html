@@ -93,7 +93,9 @@
   </head>
   <body>
     {% if user %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top">
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-white border-bottom fixed-top"
+    >
       <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.home_route') }}">
           G<span>PROJET</span>
@@ -136,18 +138,28 @@
               <div class="user-avatar me-2">{{ user.prenom[0]|upper }}</div>
               <span class="d-none d-sm-inline">{{ user.prenom }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2">
-              <li class="dropdown-header small text-uppercase fw-bold text-muted">
+            <ul
+              class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2"
+            >
+              <li
+                class="dropdown-header small text-uppercase fw-bold text-muted"
+              >
                 {{ user.prenom }} {{ user.nom }}
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a class="dropdown-item rounded-2" href="{{ url_for('main.profil_route') }}">
+                <a
+                  class="dropdown-item rounded-2"
+                  href="{{ url_for('main.profil_route') }}"
+                >
                   <i class="fas fa-user-circle me-2"></i> Mon Profil
                 </a>
               </li>
               <li>
-                <a class="dropdown-item rounded-2 text-danger" href="{{ url_for('auth.logout') }}">
+                <a
+                  class="dropdown-item rounded-2 text-danger"
+                  href="{{ url_for('auth.logout') }}"
+                >
                   <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
                 </a>
               </li>
@@ -177,7 +189,11 @@
 
     {% if user %}
     <footer class="text-center py-4 bg-white border-top small text-muted">
-      &copy; 2026 Gestion Demandes
+      &copy;
+      <script>
+        document.write(new Date().getFullYear());
+      </script>
+      Gestion Projets
     </footer>
     {% endif %}
 

@@ -282,9 +282,7 @@
               class="form-control bg-light border-0"
               name="description"
               rows="3"
-            >
-{{ tache.description }}</textarea
-            >
+            >{{ tache.description }}</textarea>
           </div>
           <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -310,24 +308,9 @@
             <div class="col-md-6">
               <label class="form-label small fw-bold">Statut</label>
               <select class="form-select bg-light border-0" name="status">
-                <option
-                  value="en attente"
-                  {% if tache.status == 'en attente' %}selected{% endif %}
-                >
-                  En attente
-                </option>
-                <option
-                  value="en cours"
-                  {% if tache.status == 'en cours' %}selected{% endif %}
-                >
-                  En cours
-                </option>
-                <option
-                  value="terminé"
-                  {% if tache.status == 'terminé' %}selected{% endif %}
-                >
-                  Terminé
-                </option>
+                <option value="en attente" {% if tache.status == 'en attente' %}selected{% endif %}>En attente</option>
+                <option value="en cours" {% if tache.status == 'en cours' %}selected{% endif %}>En cours</option>
+                <option value="terminé" {% if tache.status == 'terminé' %}selected{% endif %}>Terminé</option>
               </select>
             </div>
             <div class="col-md-6">

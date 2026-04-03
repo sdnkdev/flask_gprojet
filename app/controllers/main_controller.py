@@ -132,9 +132,13 @@ def tache_details(tache_id, current_user):
         return "Accès refusé", 403
         
     commentaires = Commentaire.query.filter_by(tache_id=tache_id).all()
-   
     files = File.query.filter_by(tache_id=tache_id).all()
-    return render_template("tache_details.html", user=current_user, tache=tache, projet=projet, commentaires=commentaires, files=files)
+    
+    # Get members for task assignment
+    memberships = Membre.query.filter_by(espace_id=projet.espace_id).all()
+    project_members = [m.user for m in memberships]
+    
+    return render_template("tache_details.html", user=current_user, tache=tache, projet=projet, commentaires=commentaires, files=files, project_members=project_members)
 
 def commentaire_details(commentaire_id, current_user):
     com = Commentaire.query.get(commentaire_id)
