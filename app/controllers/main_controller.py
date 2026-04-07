@@ -9,12 +9,16 @@ from app.models.membre import Membre
 
 def home(current_user):
   
-    memberships = Membre.query.filter_by(user_id=current_user.id).all()
-    espace_ids = [m.espace_id for m in memberships]
-    
-    espaces_count = len(memberships)
-    projets_count = Projet.query.filter(Projet.espace_id.in_(espace_ids)).count() if espace_ids else 0
-    taches_count = Tache.query.filter_by(assigned_user_id=current_user.id).count()
+    if current_user.role == 'admin':
+        espaces_count = Espace.query.count()
+        projets_count = Projet.query.count()
+        taches_count = Tache.query.filter_by(assigned_user_id=current_user.id).count() 
+    else:
+        memberships = Membre.query.filter_by(user_id=current_user.id).all()
+        espace_ids = [m.espace_id for m in memberships]
+        espaces_count = len(memberships)
+        projets_count = Projet.query.filter(Projet.espace_id.in_(espace_ids)).count() if espace_ids else 0
+        taches_count = Tache.query.filter_by(assigned_user_id=current_user.id).count()
     
    
     recent_tasks = Tache.query.filter_by(assigned_user_id=current_user.id).order_by(Tache.date_creation.desc()).limit(5).all()
@@ -27,10 +31,14 @@ def home(current_user):
                            recent_tasks=recent_tasks)
 
 def list_espaces(current_user):
-   
-    memberships = Membre.query.filter_by(user_id=current_user.id).all()
-    
-    espaces_with_roles = [(m.espace, m.role) for m in memberships]
+    if current_user.role == 'admin':
+        espaces = Espace.query.all()
+        # On donne le rôle virtuel admin à l'utilisateur pour tous les espaces
+        espaces_with_roles = [(e, 'admin') for e in espaces]
+    else:
+        memberships = Membre.query.filter_by(user_id=current_user.id).all()
+        espaces_with_roles = [(m.espace, m.role) for m in memberships]
+        
     return render_template("espaces.html", user=current_user, espaces_with_roles=espaces_with_roles)
 
 def creer_espace_ui(current_user):
@@ -58,12 +66,17 @@ def creer_espace_ui(current_user):
 def list_projets_espace(espace_id, current_user):
     
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    if not membre:
+    if not membre and current_user.role != 'admin':
         return "Accès refusé", 403
+    
+    role = 'admin' if current_user.role == 'admin' else membre.role
     
     espace = Espace.query.get(espace_id)
     projets = Projet.query.filter_by(espace_id=espace_id).all()
-    return render_template("projets.html", user=current_user, espace=espace, projets=projets, role=membre.role)
+    # Récupérer tous les membres de l'espace pour l'affichage
+    memberships = Membre.query.filter_by(espace_id=espace_id).all()
+
+    return render_template("projets.html", user=current_user, espace=espace, projets=projets, role=role, memberships=memberships)
 
 def creer_projet_ui(espace_id, current_user):
     from flask import request, redirect, url_for, flash
@@ -111,15 +124,16 @@ def projet_details(projet_id, current_user):
         return "Projet non trouvé", 404
         
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
+    if not membre and current_user.role != 'admin':
         return "Accès refusé", 403
         
+    role = 'admin' if current_user.role == 'admin' else membre.role
     taches = Tache.query.filter_by(projet_id=projet_id).all()
    
     memberships = Membre.query.filter_by(espace_id=projet.espace_id).all()
     membres = [m.user for m in memberships]
     
-    return render_template("projet_details.html", user=current_user, projet=projet, taches=taches, role=membre.role, membres=membres)
+    return render_template("projet_details.html", user=current_user, projet=projet, taches=taches, role=role, membres=membres)
 
 def tache_details(tache_id, current_user):
     tache = Tache.query.get(tache_id)
@@ -128,7 +142,7 @@ def tache_details(tache_id, current_user):
         
     projet = Projet.query.get(tache.projet_id)
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
+    if not membre and current_user.role != 'admin':
         return "Accès refusé", 403
         
     commentaires = Commentaire.query.filter_by(tache_id=tache_id).all()
@@ -148,7 +162,7 @@ def commentaire_details(commentaire_id, current_user):
     tache = Tache.query.get(com.tache_id)
     projet = Projet.query.get(tache.projet_id)
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
+    if not membre and current_user.role != 'admin':
         return "Accès refusé", 403
  
     return render_template("commentaire_details.html", user=current_user, commentaire=com, tache=tache)
@@ -161,7 +175,7 @@ def file_details(file_id, current_user):
     tache = Tache.query.get(f.tache_id)
     projet = Projet.query.get(tache.projet_id)
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
+    if not membre and current_user.role != 'admin':
         return "Accès refusé", 403
         
     return render_template("file_details.html", user=current_user, file=f, tache=tache)
@@ -249,6 +263,17 @@ def creer_tache_ui(projet_id, current_user):
 def profil_ui(current_user):
     return render_template("profil.html", user=current_user)
 
+def liste_utilisateurs_ui(current_user):
+    from app.services.admin_service import lister_tous_les_utilisateurs
+    if current_user.role != 'admin':
+        return "Accès refusé", 403
+        
+    users, status = lister_tous_les_utilisateurs(current_user.id)
+    if status >= 400:
+        users = []
+        
+    return render_template("admin_users.html", user=current_user, company_users=users)
+
 def modifier_tache_ui(tache_id, current_user):
     from flask import request, redirect, url_for, flash
     from app.services.tache_service import modifier_tache
@@ -322,3 +347,79 @@ def uploader_fichier_ui(tache_id, current_user):
     except Exception as e:
         flash(str(e), "danger")
     return redirect(url_for('main.tache_details_route', id=tache_id))
+def ajouter_membre_ui(espace_id, current_user):
+    from flask import request, redirect, url_for, flash
+    from app.services.membre_service import ajouter_membre_espace
+    
+    email = request.form.get('email')
+    role = request.form.get('role', 'user')
+    
+    try:
+        res, status = ajouter_membre_espace(espace_id, email, role, current_user.id)
+        if status >= 400:
+            flash(res.get_json().get('message', 'Erreur'), "danger")
+        else:
+            flash("Membre ajouté avec succès !", "success")
+    except Exception as e:
+        flash(str(e), "danger")
+        
+    return redirect(url_for('main.espace_projets_route', id=espace_id))
+
+def retirer_membre_ui(membre_id, current_user):
+    from flask import redirect, url_for, flash
+    from app.services.membre_service import retirer_membre_espace
+    
+    membre = Membre.query.get(membre_id)
+    espace_id = membre.espace_id if membre else None
+    
+    try:
+        res, status = retirer_membre_espace(membre_id, current_user.id)
+        if status >= 400:
+            flash(res.get_json().get('message', 'Erreur'), "danger")
+        else:
+            flash("Membre retiré avec succès !", "success")
+    except Exception as e:
+        flash(str(e), "danger")
+        
+    return redirect(url_for('main.espace_projets_route', id=espace_id)) if espace_id else redirect(url_for('main.espaces_route'))
+
+def changer_role_membre_ui(membre_id, current_user):
+    from flask import request, redirect, url_for, flash
+    from app.services.membre_service import changer_role_membre
+    
+    nouveau_role = request.form.get('role')
+    membre = Membre.query.get(membre_id)
+    espace_id = membre.espace_id if membre else None
+    
+    try:
+        res, status = changer_role_membre(membre_id, nouveau_role, current_user.id)
+        if status >= 400:
+            flash(res.get_json().get('message', 'Erreur'), "danger")
+        else:
+            flash("Rôle mis à jour !", "success")
+    except Exception as e:
+        flash(str(e), "danger")
+        
+    return redirect(url_for('main.espace_projets_route', id=espace_id)) if espace_id else redirect(url_for('main.espaces_route'))
+
+def creer_user_ui(current_user):
+    from flask import request, redirect, url_for, flash
+    from app.services.admin_service import creer_employe
+    
+    data = {
+        "prenom": request.form.get('prenom'),
+        "nom": request.form.get('nom'),
+        "email": request.form.get('email'),
+        "password": request.form.get('password')
+    }
+    
+    try:
+        res, status = creer_employe(data, current_user.id)
+        if status >= 400:
+            flash(res.get_json().get('message', 'Erreur'), "danger")
+        else:
+            flash("Compte employé créé avec succès !", "success")
+    except Exception as e:
+        flash(str(e), "danger")
+        
+    return redirect(url_for('main.profil_route'))

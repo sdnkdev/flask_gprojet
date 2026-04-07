@@ -29,7 +29,7 @@ def modifier_espace(espace_id, data_user,current_user):
     
     
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    if not membre or membre.role != 'admin':
+    if current_user.role != 'admin' and (not membre or membre.role != 'admin'):
         return jsonify({'message': 'Accès refusé: Vous devez être un membre admin de cet espace pour le modifier'}), 403
 
     espace.nom = data_user.get('nom', espace.nom)
@@ -44,7 +44,7 @@ def supprimer_espace(espace_id,current_user):
         return jsonify({'message': 'Espace non trouvé'}), 404
     
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    if not membre or membre.role != 'admin':
+    if current_user.role != 'admin' and (not membre or membre.role != 'admin'):
         return jsonify({'message': 'Accès refusé: Vous devez être un membre admin de cet espace pour le supprimer'}), 403
 
    

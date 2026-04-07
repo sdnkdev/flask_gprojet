@@ -98,7 +98,7 @@
     >
       <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.home_route') }}">
-          G<span>PROJET</span>
+          G<span>Projet</span>
         </a>
         <button
           class="navbar-toggler border-0"
@@ -123,9 +123,19 @@
                 class="nav-link {% if 'main.espaces' in request.endpoint or 'main.espace_projets' in request.endpoint %}active{% endif %}"
                 href="{{ url_for('main.espaces_route') }}"
               >
-                <i class="fas fa-cubes me-1"></i> Espaces
+                <i class="fas fa-layer-group me-1"></i> Départements
               </a>
             </li>
+            {% if user.role == 'admin' %}
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.endpoint == 'main.admin_users_route' %}active{% endif %}"
+                href="{{ url_for('main.admin_users_route') }}"
+              >
+                <i class="fas fa-users-cog me-1"></i> Employés
+              </a>
+            </li>
+            {% endif %}
           </ul>
           <div class="nav-item dropdown">
             <a

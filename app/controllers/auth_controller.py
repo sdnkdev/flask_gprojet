@@ -4,19 +4,8 @@ import jwt
 
 
 def register():
-    data = request.form.to_dict()
-    
-    if data.get("password") != data.get("confirm_password"):
-        flash("Les mots de passe ne correspondent pas", "danger")
-        return redirect(url_for("auth.show_register"))
-
-    result = register_user(data)
-    
-    if "error" in result or "message" in result and result.get("message") != "Utilisateur créé":
-        flash(result.get("message", "Erreur lors de l'inscription"), "danger")
-        return redirect(url_for("auth.show_register"))
-    
-    flash("Compte créé avec succès ! Connectez-vous.", "success")
+    # L'inscription publique est désormais désactivée dans le modèle entreprise
+    flash("L'inscription publique est désactivée. Contactez votre administrateur.", "warning")
     return redirect(url_for("auth.show_login"))
 
 def login():
@@ -49,12 +38,7 @@ def show_login():
     return render_template("login.html")
 
 def show_register():
-    token = request.cookies.get("access_token")
-    if token:
-        try:
-            jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-            return redirect(url_for("main.home_route"))
-        except:
-            pass
-    return render_template("register.html")
+    # Rediriger vers la connexion car l'inscription est privée
+    flash("Veuillez vous connecter pour accéder à l'application.", "info")
+    return redirect(url_for("auth.show_login"))
 

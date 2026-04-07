@@ -13,8 +13,8 @@ def creer_tache(data, current_user):
     
    
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
-        return jsonify({"message": "Accès refusé : Vous n'êtes pas membre de l'espace associé"}), 403
+    if current_user.role != 'admin' and (not membre or membre.role != 'admin'):
+        return jsonify({"message": "Accès refusé : Seuls les administrateurs peuvent créer des tâches"}), 403
     
     try:
         date_debut = datetime.strptime(data.get('date_debut'), '%d-%m-%Y').date() if data.get('date_debut') else None
@@ -52,7 +52,7 @@ def modifier_tache(tache_id, data, current_user):
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
     
    
-    if not membre:
+    if current_user.role != 'admin' and not membre:
         return jsonify({"message": "Accès refusé"}), 403
         
     tache.titre = data.get('titre', tache.titre)
@@ -79,8 +79,8 @@ def supprimer_tache(tache_id, current_user):
     projet = Projet.query.get(tache.projet_id)
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
     
-    if not membre:
-        return jsonify({"message": "Accès refusé"}), 403
+    if current_user.role != 'admin' and (not membre or membre.role != 'admin'):
+        return jsonify({"message": "Accès refusé : Seuls les administrateurs peuvent supprimer des tâches"}), 403
     
     
     if tache.commentaires:
@@ -98,7 +98,7 @@ def lister_taches_projet(projet_id, current_user):
         return jsonify({"message": "Projet non trouvé"}), 404
         
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not membre:
+    if current_user.role != 'admin' and not membre:
         return jsonify({"message": "Accès refusé"}), 403
         
     taches = Tache.query.filter_by(projet_id=projet_id).all()

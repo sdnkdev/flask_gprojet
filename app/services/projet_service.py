@@ -9,7 +9,7 @@ def creer_projet(data, current_user):
     
    
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    if not membre:
+    if current_user.role != 'admin' and not membre:
         return jsonify({"message": "Accès refusé : Vous n'êtes pas membre de cet espace"}), 403
     
    
@@ -51,7 +51,7 @@ def modifier_projet(projet_id, data, current_user):
     
     
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not (projet.user_id == current_user.id or (membre and membre.role == 'admin')):
+    if current_user.role != 'admin' and not (projet.user_id == current_user.id or (membre and membre.role == 'admin')):
         return jsonify({"message": "Accès refusé : Vous n'avez pas les droits de modification"}), 403
     
     projet.titre = data.get('titre', projet.titre)
@@ -72,7 +72,7 @@ def supprimer_projet(projet_id, current_user):
         return jsonify({"message": "Projet non trouvé"}), 404
     
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=projet.espace_id).first()
-    if not (projet.user_id == current_user.id or (membre and membre.role == 'admin')):
+    if current_user.role != 'admin' and not (projet.user_id == current_user.id or (membre and membre.role == 'admin')):
         return jsonify({"message": "Accès refusé : Vous n'avez pas les droits de suppression"}), 403
     
    
@@ -86,7 +86,7 @@ def supprimer_projet(projet_id, current_user):
 
 def lister_projets_espace(espace_id, current_user):
     membre = Membre.query.filter_by(user_id=current_user.id, espace_id=espace_id).first()
-    if not membre:
+    if current_user.role != 'admin' and not membre:
         return jsonify({"message": "Accès refusé"}), 403
         
     projets = Projet.query.filter_by(espace_id=espace_id).all()

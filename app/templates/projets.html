@@ -1,25 +1,328 @@
-{% extends "base.html" %} {% block title %}Projets - {{ espace.nom }}{% endblock
-%} {% block content %}
+{% extends "base.html" %} {% block title %}Espace - {{ espace.nom }}{% endblock %}
+{% block content %}
 <nav aria-label="breadcrumb" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ url_for('main.espaces_route') }}">Espaces</a>
+      <a href="{{ url_for('main.espaces_route') }}" class="text-decoration-none"
+        >Espaces</a
+      >
     </li>
     <li class="breadcrumb-item active" aria-current="page">{{ espace.nom }}</li>
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold">
-    Projets dans <span class="text-success">{{ espace.nom }}</span>
-  </h2>
-  <button
-    class="btn btn-success"
-    data-bs-toggle="modal"
-    data-bs-target="#createProjetModal"
+<div class="mb-4">
+  <h2 class="fw-bold mb-1">{{ espace.nom }}</h2>
+  <p class="text-muted small">{{ espace.description or "Aucune description" }}</p>
+</div>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-pills mb-4 bg-light p-1 rounded-3 d-inline-flex" id="espaceTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link active px-4 py-2 fw-bold"
+      id="projets-tab"
+      data-bs-toggle="pill"
+      data-bs-target="#projets-content"
+      type="button"
+      role="tab"
+    >
+      <i class="fas fa-project-diagram me-2"></i>Projets
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button
+      class="nav-link px-4 py-2 fw-bold"
+      id="membres-tab"
+      data-bs-toggle="pill"
+      data-bs-target="#membres-content"
+      type="button"
+      role="tab"
+    >
+      <i class="fas fa-users me-2"></i>Membres
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="espaceTabsContent">
+  <!-- Projets Tab Content -->
+  <div
+    class="tab-pane fade show active"
+    id="projets-content"
+    role="tabpanel"
+    aria-labelledby="projets-tab"
   >
-    <i class="fas fa-plus me-2"></i>Nouveau
-  </button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold mb-0">Mes Projets</h4>
+      {% if role == 'admin' %}
+      <button
+        class="btn btn-success rounded-pill px-3"
+        data-bs-toggle="modal"
+        data-bs-target="#createProjetModal"
+      >
+        <i class="fas fa-plus me-2"></i>Nouveau Projet
+      </button>
+      {% endif %}
+    </div>
+
+    <div class="row g-4">
+      {% for projet in projets %}
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 transition-hover">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="card-title fw-bold mb-0 text-dark">{{ projet.titre }}</h5>
+              {% if role == 'admin' %}
+              <div class="dropdown">
+                <button
+                  class="btn btn-link text-secondary p-0"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
+                  <li>
+                    <button
+                      class="dropdown-item"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editProjetModal{{ projet.id }}"
+                    >
+                      <i class="fas fa-edit me-2"></i>Modifier
+                    </button>
+                  </li>
+                  <li><hr class="dropdown-divider opacity-50" /></li>
+                  <li>
+                    <form
+                      action="{{ url_for('main.supprimer_projet_ui_route', id=projet.id) }}"
+                      method="POST"
+                      onsubmit="return confirm('Supprimer ce projet ?');"
+                    >
+                      <button type="submit" class="dropdown-item text-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Supprimer
+                      </button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+            <p class="text-secondary small mb-4">
+              {{ projet.description[:120] }}{% if projet.description|length >
+              120 %}...{% endif %}
+            </p>
+            <div class="d-flex align-items-center justify-content-between mt-auto">
+              <div class="text-muted small">
+                <i class="far fa-calendar-alt me-1"></i>
+                {{ projet.date_fin.strftime('%d/%m/%Y') }}
+              </div>
+              <a
+                href="{{ url_for('main.projet_details_route', id=projet.id) }}"
+                class="btn btn-soft-success btn-sm rounded-pill px-3"
+              >
+                Ouvrir
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if role == 'admin' %}
+      <!-- Modal Modifier Projet -->
+      <div
+        class="modal fade"
+        id="editProjetModal{{ projet.id }}"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold">Modifier le Projet</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <form
+              action="{{ url_for('main.modifier_projet_ui_route', id=projet.id) }}"
+              method="POST"
+            >
+              <div class="modal-body py-4">
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Titre</label>
+                  <input
+                    type="text"
+                    class="form-control bg-light border-0 py-2"
+                    name="titre"
+                    value="{{ projet.titre }}"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Description</label>
+                  <textarea
+                    class="form-control bg-light border-0 py-2"
+                    name="description"
+                    rows="3"
+                  >
+{{ projet.description }}</textarea
+                  >
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-bold">Date Début</label>
+                    <input
+                      type="date"
+                      class="form-control bg-light border-0 py-2"
+                      name="date_debut"
+                      value="{{ projet.date_debut.strftime('%Y-%m-%d') }}"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-bold">Date Fin</label>
+                    <input
+                      type="date"
+                      class="form-control bg-light border-0 py-2"
+                      name="date_fin"
+                      value="{{ projet.date_fin.strftime('%Y-%m-%d') }}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-success px-4">
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endif %} {% else %}
+      <div class="col-12 text-center py-5">
+        <div class="bg-light p-5 rounded-4">
+          <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+          <p class="text-secondary">Aucun projet trouvé dans cet espace.</p>
+          {% if role == 'admin' %}
+          <button
+            class="btn btn-success rounded-pill"
+            data-bs-toggle="modal"
+            data-bs-target="#createProjetModal"
+          >
+            Créer le premier projet
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Membres Tab Content -->
+  <div
+    class="tab-pane fade"
+    id="membres-content"
+    role="tabpanel"
+    aria-labelledby="membres-tab"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold mb-0">Membres de l'Espace</h4>
+      {% if role == 'admin' %}
+      <button
+        class="btn btn-primary rounded-pill px-3"
+        data-bs-toggle="modal"
+        data-bs-target="#addMembreModal"
+      >
+        <i class="fas fa-user-plus me-2"></i>Ajouter un membre
+      </button>
+      {% endif %}
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+      <ul class="list-group list-group-flush">
+        {% for membership in memberships %}
+        <li class="list-group-item p-3 border-0 border-bottom">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <div
+                class="avatar-circle me-3 bg-soft-primary text-primary d-flex align-items-center justify-content-center fw-bold"
+              >
+                {{ membership.user.prenom[0] }}{{ membership.user.nom[0] }}
+              </div>
+              <div>
+                <h6 class="fw-bold mb-0">
+                  {{ membership.user.prenom }} {{ membership.user.nom }} {% if
+                  membership.user_id == user.id %}
+                  <span class="badge bg-light text-dark ms-1 small">Vous</span>
+                  {% endif %}
+                </h6>
+                <p class="text-muted small mb-0">{{ membership.user.email }}</p>
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <span
+                class="badge {% if membership.role == 'admin' %}bg-soft-danger text-danger{% else %}bg-soft-info text-info{% endif %} me-3 rounded-pill px-3"
+              >
+                {{ membership.role | capitalize }}
+              </span>
+
+              {% if role == 'admin' %}
+              <div class="dropdown">
+                <button
+                  class="btn btn-light btn-sm rounded-circle"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="fas fa-cog"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
+                  <li>
+                    <form
+                      action="{{ url_for('main.changer_role_membre_ui_route', id=membership.id) }}"
+                      method="POST"
+                    >
+                      <input
+                        type="hidden"
+                        name="role"
+                        value="{% if membership.role == 'admin' %}user{% else %}admin{% endif %}"
+                      />
+                      <button type="submit" class="dropdown-item">
+                        <i class="fas fa-user-shield me-2"></i>Changer en {% if
+                        membership.role == 'admin' %}Utilisateur{% else %}Admin{%
+                        endif %}
+                      </button>
+                    </form>
+                  </li>
+                  {% if membership.user_id != user.id %}
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <form
+                      action="{{ url_for('main.retirer_membre_ui_route', id=membership.id) }}"
+                      method="POST"
+                      onsubmit="return confirm('Retirer ce membre ?');"
+                    >
+                      <button type="submit" class="dropdown-item text-danger">
+                        <i class="fas fa-user-minus me-2"></i>Retirer de l'espace
+                      </button>
+                    </form>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Création Projet -->
@@ -49,7 +352,6 @@
               class="form-control bg-light border-0 py-2"
               id="titre"
               name="titre"
-              placeholder=""
               required
             />
           </div>
@@ -62,7 +364,6 @@
               id="description"
               name="description"
               rows="3"
-              placeholder="Description du projet..."
             ></textarea>
           </div>
           <div class="row">
@@ -105,154 +406,67 @@
   </div>
 </div>
 
-<div class="row g-4">
-  {% for projet in projets %}
-  <div class="col-md-6">
-    <div class="card border-0 shadow-sm h-100 transition-hover">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <h5 class="card-title fw-bold mb-0 text-dark">{{ projet.titre }}</h5>
-          <div class="d-flex align-items-center">
-            <span class="badge bg-soft-success text-success me-2"
-              >{{ projet.status }}</span
-            >
-            {% if role == 'admin' %}
-            <div class="dropdown" style="position: relative; z-index: 2">
-              <button
-                class="btn btn-link text-secondary p-0"
-                data-bs-toggle="dropdown"
-              >
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm">
-                <li>
-                  <button
-                    class="dropdown-item"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editProjetModal{{ projet.id }}"
-                  >
-                    <i class="fas fa-edit me-2"></i>Modifier
-                  </button>
-                </li>
-                <li>
-                  <form
-                    action="{{ url_for('main.supprimer_projet_ui_route', id=projet.id) }}"
-                    method="POST"
-                    onsubmit="return confirm('Supprimer ce projet ?');"
-                  >
-                    <button type="submit" class="dropdown-item text-danger">
-                      <i class="fas fa-trash-alt me-2"></i>Supprimer
-                    </button>
-                  </form>
-                </li>
-              </ul>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-        <p class="text-secondary small">
-          {{ projet.description[:100] }}{% if projet.description|length > 100
-          %}...{% endif %}
-        </p>
-        <div class="d-flex align-items-center text-muted small mb-3">
-          <i class="far fa-calendar-alt me-2"></i>
-          {{ projet.date_debut.strftime('%d/%m/%Y') }} - {{
-          projet.date_fin.strftime('%d/%m/%Y') }}
-        </div>
-        <a
-          href="{{ url_for('main.projet_details_route', id=projet.id) }}"
-          class="btn btn-outline-success btn-sm stretched-link"
-        >
-          Détails <i class="fas fa-chevron-right ms-1"></i>
-        </a>
+<!-- Modal Ajouter Membre -->
+<div class="modal fade" id="addMembreModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Ajouter un Membre</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
-    </div>
-  </div>
-
-  {% if role == 'admin' %}
-  <!-- Modal Modifier Projet -->
-  <div
-    class="modal fade"
-    id="editProjetModal{{ projet.id }}"
-    tabindex="-1"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-bold">Modifier le Projet</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <form
-          action="{{ url_for('main.modifier_projet_ui_route', id=projet.id) }}"
-          method="POST"
-        >
-          <div class="modal-body py-4">
-            <div class="mb-3">
-              <label class="form-label small fw-bold">Titre</label>
-              <input
-                type="text"
-                class="form-control bg-light border-0 py-2"
-                name="titre"
-                value="{{ projet.titre }}"
-                required
-              />
+      <form
+        action="{{ url_for('main.ajouter_membre_ui_route', id=espace.id) }}"
+        method="POST"
+      >
+        <div class="modal-body py-4">
+          <div class="mb-3">
+            <label for="email" class="form-label small fw-bold">Email de l'utilisateur</label>
+            <input
+              type="email"
+              class="form-control bg-light border-0 py-3"
+              id="email"
+              name="email"
+              placeholder="ex: jean.dupont@gmail.com"
+              required
+            />
+            <div class="form-text mt-2 small">
+              L'utilisateur doit déjà posséder un compte sur la plateforme.
             </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold">Description</label>
-              <textarea
-                class="form-control bg-light border-0 py-2"
-                name="description"
-                rows="3"
-              >
-{{ projet.description }}</textarea
-              >
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label small fw-bold">Date Début</label>
-                <input
-                  type="date"
-                  class="form-control bg-light border-0 py-2"
-                  name="date_debut"
-                  value="{{ projet.date_debut.strftime('%Y-%m-%d') }}"
-                  required
-                />
+          </div>
+          <div class="mb-0">
+            <label class="form-label small fw-bold">Rôle</label>
+            <div class="d-flex gap-3 mt-1">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" id="roleUser" value="user" checked>
+                <label class="form-check-label small" for="roleUser">
+                  Utilisateur (Lecture/Écriture)
+                </label>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label small fw-bold">Date Fin</label>
-                <input
-                  type="date"
-                  class="form-control bg-light border-0 py-2"
-                  name="date_fin"
-                  value="{{ projet.date_fin.strftime('%Y-%m-%d') }}"
-                  required
-                />
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" id="roleAdmin" value="admin">
+                <label class="form-check-label small" for="roleAdmin">
+                  Admin (Gestion complète)
+                </label>
               </div>
             </div>
           </div>
-          <div class="modal-footer border-0 pt-0">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-              Annuler
-            </button>
-            <button type="submit" class="btn btn-success px-4">
-              Sauvegarder
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary px-4">
+            Ajouter le membre
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-  {% endif %} {% else %}
-  <div class="col-12 text-center py-5">
-    <p class="text-secondary">Aucun projet trouvé dans cet espace.</p>
-  </div>
-  {% endfor %}
 </div>
 
 <style>
@@ -265,8 +479,29 @@
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
   }
-  .bg-soft-success {
-    background-color: #f0fdf4;
+  .bg-soft-success { background-color: #f0fdf4; color: #16a34a; }
+  .btn-soft-success { background-color: #f0fdf4; color: #16a34a; border: none; }
+  .btn-soft-success:hover { background-color: #dcfce7; color: #15803d; }
+  
+  .bg-soft-primary { background-color: #eff6ff; color: #2563eb; }
+  .bg-soft-info { background-color: #ecfeff; color: #0891b2; }
+  .bg-soft-danger { background-color: #fef2f2; color: #dc2626; }
+
+  .avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+  }
+
+  .nav-pills .nav-link {
+    color: #64748b;
+  }
+  .nav-pills .nav-link.active {
+    background-color: #fff;
+    color: #10b981;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 </style>
 {% endblock %}
+

@@ -113,3 +113,32 @@ def ajouter_commentaire_ui_route(current_user, id):
 def uploader_fichier_ui_route(current_user, id):
     from app.controllers.main_controller import uploader_fichier_ui
     return uploader_fichier_ui(id, current_user)
+@main_bp.route('/espaces/<int:id>/membres/ajouter', methods=['POST'])
+@token_required
+def ajouter_membre_ui_route(current_user, id):
+    from app.controllers.main_controller import ajouter_membre_ui
+    return ajouter_membre_ui(id, current_user)
+
+@main_bp.route('/membres/<int:id>/retirer', methods=['POST'])
+@token_required
+def retirer_membre_ui_route(current_user, id):
+    from app.controllers.main_controller import retirer_membre_ui
+    return retirer_membre_ui(id, current_user)
+
+@main_bp.route('/membres/<int:id>/role', methods=['POST'])
+@token_required
+def changer_role_membre_ui_route(current_user, id):
+    from app.controllers.main_controller import changer_role_membre_ui
+    return changer_role_membre_ui(id, current_user)
+
+@main_bp.route('/admin/creer-user', methods=['POST'])
+@token_required
+def creer_user_ui_route(current_user):
+    from app.controllers.main_controller import creer_user_ui
+    return creer_user_ui(current_user)
+
+@main_bp.route('/admin/users')
+@token_required
+def admin_users_route(current_user):
+    from app.controllers.main_controller import liste_utilisateurs_ui
+    return liste_utilisateurs_ui(current_user)
