@@ -1,7 +1,7 @@
-{% extends "base.html" %} {% block title %}Départements - PORTAIL INTERNE{% endblock %} {%
-block content %}
+{% extends "base.html" %} {% block title %}Départements - PORTAIL INTERNE{%
+endblock %} {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold">Départements</h2>
+  <h2 class="fw-bold">Espaces</h2>
   <button
     class="btn btn-success"
     data-bs-toggle="modal"
@@ -15,7 +15,7 @@ block content %}
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">Nouveau Département</h5>
+        <h5 class="modal-title fw-bold">Nouveau Espace</h5>
         <button
           type="button"
           class="btn-close"
@@ -27,7 +27,7 @@ block content %}
         <div class="modal-body py-4">
           <div class="mb-3">
             <label for="nom" class="form-label small fw-bold"
-              >Nom du Département</label
+              >Nom de l'espace</label
             >
             <input
               type="text"
@@ -40,8 +40,8 @@ block content %}
           </div>
           <div class="mb-0">
             <label for="description" class="form-label small fw-bold"
-              >Description (Optionnel)</label
-            >
+              >Description
+            </label>
             <textarea
               class="form-control bg-light border-0 py-2"
               id="description"

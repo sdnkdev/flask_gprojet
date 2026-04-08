@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %}Espace - {{ espace.nom }}{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Espace - {{ espace.nom }}{% endblock
+%} {% block content %}
 <nav aria-label="breadcrumb" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
@@ -13,11 +13,17 @@
 
 <div class="mb-4">
   <h2 class="fw-bold mb-1">{{ espace.nom }}</h2>
-  <p class="text-muted small">{{ espace.description or "Aucune description" }}</p>
+  <p class="text-muted small">
+    {{ espace.description or "Aucune description" }}
+  </p>
 </div>
 
 <!-- Tabs Navigation -->
-<ul class="nav nav-pills mb-4 bg-light p-1 rounded-3 d-inline-flex" id="espaceTabs" role="tablist">
+<ul
+  class="nav nav-pills mb-4 bg-light p-1 rounded-3 d-inline-flex"
+  id="espaceTabs"
+  role="tablist"
+>
   <li class="nav-item" role="presentation">
     <button
       class="nav-link active px-4 py-2 fw-bold"
@@ -71,7 +77,9 @@
         <div class="card border-0 shadow-sm h-100 transition-hover">
           <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
-              <h5 class="card-title fw-bold mb-0 text-dark">{{ projet.titre }}</h5>
+              <h5 class="card-title fw-bold mb-0 text-dark">
+                {{ projet.titre }}
+              </h5>
               {% if role == 'admin' %}
               <div class="dropdown">
                 <button
@@ -110,7 +118,9 @@
               {{ projet.description[:120] }}{% if projet.description|length >
               120 %}...{% endif %}
             </p>
-            <div class="d-flex align-items-center justify-content-between mt-auto">
+            <div
+              class="d-flex align-items-center justify-content-between mt-auto"
+            >
               <div class="text-muted small">
                 <i class="far fa-calendar-alt me-1"></i>
                 {{ projet.date_fin.strftime('%d/%m/%Y') }}
@@ -194,7 +204,11 @@
                 </div>
               </div>
               <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  data-bs-dismiss="modal"
+                >
                   Annuler
                 </button>
                 <button type="submit" class="btn btn-success px-4">
@@ -294,8 +308,8 @@
                       />
                       <button type="submit" class="dropdown-item">
                         <i class="fas fa-user-shield me-2"></i>Changer en {% if
-                        membership.role == 'admin' %}Utilisateur{% else %}Admin{%
-                        endif %}
+                        membership.role == 'admin' %}Utilisateur{% else
+                        %}Admin{% endif %}
                       </button>
                     </form>
                   </li>
@@ -308,7 +322,8 @@
                       onsubmit="return confirm('Retirer ce membre ?');"
                     >
                       <button type="submit" class="dropdown-item text-danger">
-                        <i class="fas fa-user-minus me-2"></i>Retirer de l'espace
+                        <i class="fas fa-user-minus me-2"></i>Retirer de
+                        l'espace
                       </button>
                     </form>
                   </li>
@@ -425,7 +440,9 @@
       >
         <div class="modal-body py-4">
           <div class="mb-3">
-            <label for="email" class="form-label small fw-bold">Email de l'utilisateur</label>
+            <label for="email" class="form-label small fw-bold"
+              >Email de l'utilisateur</label
+            >
             <input
               type="email"
               class="form-control bg-light border-0 py-3"
@@ -442,15 +459,28 @@
             <label class="form-label small fw-bold">Rôle</label>
             <div class="d-flex gap-3 mt-1">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="role" id="roleUser" value="user" checked>
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="role"
+                  id="roleUser"
+                  value="user"
+                  checked
+                />
                 <label class="form-check-label small" for="roleUser">
-                  Utilisateur (Lecture/Écriture)
+                  Utilisateur
                 </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="role" id="roleAdmin" value="admin">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="role"
+                  id="roleAdmin"
+                  value="admin"
+                />
                 <label class="form-check-label small" for="roleAdmin">
-                  Admin (Gestion complète)
+                  Admin
                 </label>
               </div>
             </div>
@@ -479,13 +509,32 @@
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
   }
-  .bg-soft-success { background-color: #f0fdf4; color: #16a34a; }
-  .btn-soft-success { background-color: #f0fdf4; color: #16a34a; border: none; }
-  .btn-soft-success:hover { background-color: #dcfce7; color: #15803d; }
-  
-  .bg-soft-primary { background-color: #eff6ff; color: #2563eb; }
-  .bg-soft-info { background-color: #ecfeff; color: #0891b2; }
-  .bg-soft-danger { background-color: #fef2f2; color: #dc2626; }
+  .bg-soft-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+  }
+  .btn-soft-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: none;
+  }
+  .btn-soft-success:hover {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .bg-soft-primary {
+    background-color: #eff6ff;
+    color: #2563eb;
+  }
+  .bg-soft-info {
+    background-color: #ecfeff;
+    color: #0891b2;
+  }
+  .bg-soft-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+  }
 
   .avatar-circle {
     width: 45px;
@@ -500,8 +549,7 @@
   .nav-pills .nav-link.active {
     background-color: #fff;
     color: #10b981;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 </style>
 {% endblock %}
-
