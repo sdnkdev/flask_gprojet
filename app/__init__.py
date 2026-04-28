@@ -11,6 +11,9 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    from flask_cors import CORS
+    CORS(app, supports_credentials=True)
+
     db.init_app(app)
     migrate.init_app(app, db)
     

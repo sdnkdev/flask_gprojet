@@ -9,7 +9,7 @@ def creer_employe(data, current_user_id):
     if not admin or admin.role != 'admin':
         return jsonify({"message": "Accès refusé : Seuls les administrateurs peuvent créer des comptes"}), 403
     
-    # On délègue la création à la logique existante
+  
     result = register_user(data)
     
     if result.get("message") == "Utilisateur déjà existant":

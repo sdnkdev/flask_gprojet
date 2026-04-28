@@ -142,3 +142,4 @@ def creer_user_ui_route(current_user):
 def admin_users_route(current_user):
     from app.controllers.main_controller import liste_utilisateurs_ui
     return liste_utilisateurs_ui(current_user)
+

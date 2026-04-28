@@ -7,6 +7,7 @@ auth_bp.route("/register", methods=["POST"])(register)
 
 auth_bp.route("/login", methods=["POST"])(login)
 
+
 auth_bp.route("/login", methods=["GET"])(show_login)
 
 auth_bp.route("/register", methods=["GET"])(show_register)
